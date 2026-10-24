@@ -1,0 +1,6 @@
+bot/saves.db
+bot/__pycache__/
+__pycache__/
+*.pyc
+.DS_Store
+atlands-save.json
