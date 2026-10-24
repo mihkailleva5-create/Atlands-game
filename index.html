@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Atlands — уютный остров питомцев</title>
+<meta name="description" content="Atlands — милая мини-игра для Telegram: остров, питомцы, искры, задания и много музыки.">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏝️</text></svg>">
+</head>
+<body>
+
+<div class="sky" aria-hidden="true">
+  <span class="cloud c1">☁️</span><span class="cloud c2">☁️</span><span class="cloud c3">☁️</span>
+  <span class="sun">☀️</span>
+</div>
+
+<header class="hud">
+  <div class="player">
+    <div class="avatar">🦊</div>
+    <div>
+      <b id="player-name">Мой уютный остров 🏝️</b>
+      <span id="player-sub">Atlands · мини-игра</span>
+    </div>
+  </div>
+  <div class="wallets">
+    <span class="wallet" title="Искры">✨ <b id="hud-sparkles">0</b></span>
+    <span class="wallet" title="Капли">💧 <b id="hud-drops">0</b></span>
+    <span class="wallet soft" title="Доход"><span id="hud-persec">0/сек</span></span>
+    <span class="wallet boost" id="boost-badge" style="display:none">⚡ x2</span>
+  </div>
+  <div class="level-row">
+    <span id="player-level">Уровень 1</span>
+    <div class="progress grow"><div id="exp-fill"></div></div>
+    <span id="exp-text" class="soft-text">0 / 100 опыта</span>
+  </div>
+  <div id="save-status" class="save-status">💾 Автосохранение включено</div>
+</header>
+
+<main>
+  <!-- ОСТРОВ -->
+  <section class="screen active" id="screen-island">
+    <div class="island-card">
+      <div class="island-head">
+        <b id="island-stage-name">Крошечный островок</b>
+        <span class="soft-text">нажми на питомца 👇</span>
+      </div>
+      <div class="island-scene">
+        <div id="decor-layer" aria-hidden="true"></div>
+        <div id="pet-stage" title="Погладить питомца"></div>
+        <div id="particles" aria-hidden="true"></div>
+        <div class="island-ground" aria-hidden="true"></div>
+      </div>
+      <button id="pet-name-label" class="pet-name" title="Переименовать">Лотти</button>
+      <div id="pet-species-label" class="soft-text center">Аксолотль</div>
+
+      <div class="stats">
+        <label>😊 Настроение <span class="bar"><i id="stat-mood"></i></span></label>
+        <label>🍓 Сытость <span class="bar"><i id="stat-hunger"></i></span></label>
+        <label>⚡ Бодрость <span class="bar"><i id="stat-energy"></i></span></label>
+      </div>
+
+      <div class="care-row">
+        <button class="btn-care" data-care="feed">🍓<span class="care-label">Покормить</span></button>
+        <button class="btn-care" data-care="play">🎾<span class="care-label">Поиграть</span></button>
+        <button class="btn-care" data-care="groom">🫧<span class="care-label">Погладить</span></button>
+      </div>
+      <button id="daily-btn" class="btn-main wide">🎁 Забрать ежедневную награду</button>
+    </div>
+
+    <div class="card">
+      <h3>⚙️ Сохранение и данные</h3>
+      <p class="soft-text">Прогресс сам сохраняется в облако Telegram и на устройство. Можно скачать бэкап файлом или отправить прогресс боту.</p>
+      <div class="btn-row">
+        <button class="btn-ghost" id="btn-export">📤 Экспорт</button>
+        <label class="btn-ghost">📥 Импорт<input type="file" id="import-file" accept="application/json" hidden></label>
+        <button class="btn-ghost" id="btn-send-bot">🤖 Боту</button>
+        <button class="btn-ghost danger" id="btn-reset">🗑 Сброс</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- МАГАЗИН -->
+  <section class="screen" id="screen-shop">
+    <h2>🛒 Магазин острова</h2>
+    <p class="soft-text">Украшения приносят искры каждую секунду и появляются на острове.</p>
+    <div id="shop-list" class="list"></div>
+    <h2>🍰 Лакомства за капли 💧</h2>
+    <div id="treats-list" class="list"></div>
+  </section>
+
+  <!-- ПИТОМЦЫ -->
+  <section class="screen" id="screen-pets">
+    <h2>💖 Мои питомцы</h2>
+    <p class="soft-text">Каждый питомец усиливает искры за нажатие. Собирай всю коллекцию!</p>
+    <div id="pets-grid" class="pets-grid"></div>
+    <div class="card">
+      <h3>🎨 Цвет питомца</h3>
+      <div id="skin-row" class="row-wrap"></div>
+      <h3>👒 Аксессуар</h3>
+      <div id="accessory-row" class="row-wrap"></div>
+    </div>
+  </section>
+
+  <!-- ЗАДАНИЯ -->
+  <section class="screen" id="screen-quests">
+    <h2>📋 Задания дня</h2>
+    <p class="soft-text">Обновляются каждый день. Заглядывай за наградами!</p>
+    <div id="quests-list" class="list"></div>
+  </section>
+
+  <!-- МУЗЫКА -->
+  <section class="screen" id="screen-music">
+    <h2>🎵 Музыка острова</h2>
+    <div class="card player-card">
+      <div id="now-playing" class="now-playing">—</div>
+      <div class="player-controls">
+        <button class="btn-main" id="btn-prev">⏮</button>
+        <button class="btn-main" id="btn-play">▶ Играть</button>
+        <button class="btn-main" id="btn-next">⏭</button>
+      </div>
+      <label class="vol">🔊 Громкость <input type="range" id="volume-slider" min="0" max="100" value="50"></label>
+      <label class="switch-row"><span>🎵 Музыка</span><input type="checkbox" id="toggle-music" checked></label>
+      <label class="switch-row"><span>🔔 Звуки игры</span><input type="checkbox" id="toggle-sfx" checked></label>
+      <p class="soft-text">Музыка играет прямо из игры (WebAudio) — без файлов и авторских прав. Свои mp3: положи в <code>assets/music/</code> и впиши в <code>EXTERNAL_TRACKS</code> в js/music.js.</p>
+    </div>
+    <div id="music-list" class="list"></div>
+  </section>
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-screen="island">🏝️<span>Остров</span></button>
+  <button class="nav-btn" data-screen="shop">🛒<span>Магазин</span></button>
+  <button class="nav-btn" data-screen="pets">💖<span>Питомцы</span></button>
+  <button class="nav-btn" data-screen="quests">📋<span>Задания</span></button>
+  <button class="nav-btn" data-screen="music">🎵<span>Музыка</span></button>
+</nav>
+
+<div id="offline-modal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <div class="modal-emoji">🏝️</div>
+    <h3>С возвращением!</h3>
+    <p id="offline-text"></p>
+    <button class="btn-main wide" id="offline-close">Забрать ✨</button>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script src="js/models.js"></script>
+<script src="js/music.js"></script>
+<script src="js/telegram.js"></script>
+<script src="js/save.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
